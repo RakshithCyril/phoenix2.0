@@ -7,150 +7,157 @@ const mongoose = require('mongoose')
 const path = require('path')
 const excelToJson = require('convert-excel-to-json');
 const bcrypt = require('bcrypt')
-const yards= require('./models/validate')
+const yards = require('./models/validate')
 const methodOverride = require('method-override')
 const session = require('express-session')
 
-    mongoose.connect('mongodb+srv://@testdb.k9yiz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority/test',{
-    dbName:process.env.dbname,
-    user:process.env.user,
-    pass:process.env.password,
-    useNewUrlParser: true, 
-    useUnifiedTopology: true })
+mongoose.connect('mongodb+srv://@testdb.k9yiz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority/test', {
+    dbName: process.env.dbname,
+    user: process.env.user,
+    pass: process.env.password,
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
     .then(() => {
         console.log('mongo Connected')
     })
     .catch(() => {
         console.log('Connection Error')
     })
-    mongoose.set('useFindAndModify',false);
-    
-app.set('views',path.join(__dirname,'views'))
-app.set('view engine','ejs')
-app.use(express.static(path.join(__dirname,'options')))
-app.use(express.urlencoded({extended:true}))
+mongoose.set('useFindAndModify', false);
+
+app.set('views', path.join(__dirname, 'views'))
+app.set('view engine', 'ejs')
+app.use(express.static(path.join(__dirname, 'options')))
+app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
-app.use(session({secret:process.env.SESSION,resave: true,
+app.use(session({
+    secret: process.env.SESSION, resave: true,
     saveUninitialized: false,
     cookie: {
         expires: 14400000
-    }}))
+    }
+}))
 
-const requirelogin = (req,res,next)=>{
-    if(!req.session.user_id){
+const requirelogin = (req, res, next) => {
+    if (!req.session.user_id) {
         return res.redirect('/login')
     }
     next()
- }
+}
 
-app.get('/',requirelogin ,(req,res)=>{
+app.get('/', requirelogin, (req, res) => {
     res.redirect('/login')
 })
-app.get('/register',(req,res)=>{
+app.get('/register', (req, res) => {
     res.render('register')
 })
-app.post('/register',async (req,res)=>{
-    const {password ,username,email,phone} = req.body
-    const hash = await bcrypt.hash(password,12)
+app.post('/register', async (req, res) => {
+    const { password, username, email, phone } = req.body
+    const hash = await bcrypt.hash(password, 12)
     const user = new User({
-        user:username,
-        password:hash,
-        email:email,
-        phone:phone,
+        user: username,
+        password: hash,
+        email: email,
+        phone: phone,
     })
     await user.save()
-    .then(dat =>{
-        console.log('done')
-    }).catch(err =>{
-        console.log("ERROR")
-    }) 
-    const login = await User.findOne({user:username})
+        .then(dat => {
+            console.log('done')
+        }).catch(err => {
+            console.log("ERROR")
+        })
+    const login = await User.findOne({ user: username })
     const validPass = await bcrypt.compare(password, user.password)
-    if(validPass){
-        req.session.user_id = user._id  
+    if (validPass) {
+        req.session.user_id = user._id
         res.redirect('/allyards')
-    }else{
+    } else {
         res.redirect('/login')
     }
 })
-app.get('/login',(req,res)=>{ 
-    if(!req.session.user_id ){
+app.get('/login', (req, res) => {
+    if (!req.session.user_id) {
         res.render('login')
-       
-    }else{
+
+    } else {
         res.redirect('/allyards')
     }
 })
-app.post('/login',async(req,res)=>{
-    const {username,password} = req.body
-    const user = await User.findOne({user:username})
-    const validPass = await bcrypt.compare(password, user.password)
-    if(validPass){
-        req.session.user_id = user._id  
-        res.redirect('/allyards')
-    }else{
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body
+    const user = await User.findOne({ user: username })
+    if (!user) {
         res.redirect('/login')
     }
-   
+    else {
+        const validPass = await bcrypt.compare(password, user.password)
+        if (validPass) {
+            req.session.user_id = user._id
+            res.redirect('/allyards')
+        } else {
+            res.redirect('/login')
+        }
+    }
 })
-app.get('/logout',(req,res)=>{
+app.get('/logout', (req, res) => {
     res.redirect('/login')
 })
-app.post('/logout',(req,res)=>{
-    req.session.user_id = null 
+app.post('/logout', (req, res) => {
+    req.session.user_id = null
     return res.redirect('/login')
 })
 
-app.get('/allyards', requirelogin, async(req,res)=>{
-    
-        const test = await yards.find({},{'Yard_Name' :1 , '_id' : 1 })
-        res.render('all_yards',{test})
-       
+app.get('/allyards', requirelogin, async (req, res) => {
+
+    const test = await yards.find({}, { 'Yard_Name': 1, '_id': 1 })
+    res.render('all_yards', { test })
+
 })
-app.get('/yards/:id', requirelogin,async(req,res,next)=>{
-    const {id} = req.params
+app.get('/yards/:id', requirelogin, async (req, res, next) => {
+    const { id } = req.params
     const test = await yards.findById(id)
-    res.render('yard_details',{test})
+    res.render('yard_details', { test })
 })
-app.get('/DNC/:id',requirelogin,async(req,res)=>{
-    const {id} = req.params
+app.get('/DNC/:id', requirelogin, async (req, res) => {
+    const { id } = req.params
     const test = await yards.findByIdAndUpdate(id)
-    res.render('DNC',{test})
+    res.render('DNC', { test })
 })
-app.patch('/DNC/:id',requirelogin, async(req,res)=>{
-    const {id} = req.params
-    const update = await yards.findByIdAndUpdate(id,req.body,{runValidators:true , new:true})
-    .then(()=>{
-        console.log('done')
-    })
-    .catch(async()=>{
-        const {id} = req.params
+app.patch('/DNC/:id', requirelogin, async (req, res) => {
+    const { id } = req.params
+    const update = await yards.findByIdAndUpdate(id, req.body, { runValidators: true, new: true })
+        .then(() => {
+            console.log('done')
+        })
+        .catch(async () => {
+            const { id } = req.params
+            const test = await yards.findById(id)
+            res.render('yard_details', { test })
+        })
+})
+app.get('/edit/:id', requirelogin, async (req, res) => {
+    const { id } = req.params
     const test = await yards.findById(id)
-    res.render('yard_details',{test})
-    })
+    res.render("yard_edit", { test })
 })
-app.get('/edit/:id',requirelogin,async(req,res)=>{
-    const {id} = req.params
-    const test = await yards.findById(id)   
-    res.render("yard_edit",{test})
+app.patch('/edit/:id', requirelogin, async (req, res,) => {
+    const { id } = req.params
+    const update = await yards.findByIdAndUpdate(id, req.body, { runValidators: true, new: true })
+        .then(() => {
+            console.log('done')
+        })
+        .catch(async () => {
+            const { id } = req.params
+            const test = await yards.findById(id)
+            res.render('yard_details', { test })
+        })
 })
-app.patch('/edit/:id',requirelogin,async(req,res,)=>{
-    const {id} = req.params
-    const update = await yards.findByIdAndUpdate(id,req.body,{runValidators:true , new:true})
-    .then(()=>{
-        console.log('done')
-    })
-    .catch(async()=>{
-        const {id} = req.params
-    const test = await yards.findById(id)
-    res.render('yard_details',{test})
-    })
-})
-app.get('*', function(req, res){
+app.get('*', function (req, res) {
     res.status(404).render('error');
-  })
+})
 const port = process.env.PORT || 3000
 
-app.listen(port,()=>{
+app.listen(port, () => {
     console.log(`connected to ${port}`)
 })
