@@ -48,11 +48,11 @@ font-size: 30px;
     border: none;
     border-radius: 20px;
 }
-.btn:hover{
+/* .btn:hover{
     color: white;
     transform: translatey(-10px);
     box-shadow: #000000 0px 0px 8px;
-}
+} */
 
 option{
     width: 100px;

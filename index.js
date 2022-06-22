@@ -30,7 +30,11 @@ app.set('view engine','ejs')
 app.use(express.static(path.join(__dirname,'options')))
 app.use(express.urlencoded({extended:true}))
 app.use(methodOverride('_method'))
-app.use(session({secret:process.env.SESSION}))
+app.use(session({secret:process.env.SESSION,resave: true,
+    saveUninitialized: false,
+    cookie: {
+        expires: 14400000
+    }}))
 
 const requirelogin = (req,res,next)=>{
     if(!req.session.user_id){
@@ -98,8 +102,10 @@ app.post('/logout',(req,res)=>{
 })
 
 app.get('/allyards', requirelogin, async(req,res)=>{
+    
         const test = await yards.find({},{'Yard_Name' :1 , '_id' : 1 })
         res.render('all_yards',{test})
+       
 })
 app.get('/yards/:id', requirelogin,async(req,res,next)=>{
     const {id} = req.params
