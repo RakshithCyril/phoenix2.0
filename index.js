@@ -147,7 +147,8 @@ app.patch('/edit/:id',requirelogin,async(req,res,)=>{
     })
 })
 app.get('*', function(req, res){
-    res.status(404).render('error');
+    res.redirect('/login');
+    
   })
 const port = process.env.PORT || 3000
 
