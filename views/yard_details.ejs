@@ -74,7 +74,7 @@ a:hover{
 <h3 class="ejs">Email : <span class="mongo"><%= test.Email %> </span></h3>
 <h3 class="ejs">Warranty : <span class="mongo"><%= test.Warranty %></span> </h3>
 <h3>Rating : <%= test.Rating %></h3>
-<h3>No.of Reviews : <%= test.Reviews %></h3>
+<h3>No.of Reviews :<a target="_blank" href="https://www.google.com/search?q=<%= test.Yard_Name %>"><%= test.Reviews %></a> </h3>
 </div>
 <a  class="btn-primary" href="/edit/<%=test._id%>">Update</a>
 <a class="btn-danger" href="/DNC/<%=test._id%>">Edit DNC</a>

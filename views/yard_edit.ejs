@@ -10,6 +10,9 @@
     <title>Phoenix</title>
 </head>
 <style>
+  body{
+    text-align: center;
+  }
     #form{
         margin-top: 100px;
         margin-left: 600px;
@@ -51,7 +54,7 @@ a:hover{
         <label for="phone">Enter phone number:</label>
         <input class="input_edit" value="<%= test.Phone%> " type="txt" placeholder="Enter phone number" id="phone" name="Phone"><br>
         <label for="fax">Enter FAX number:</label>
-        <input style="margin-left:22px;" value="<%= test.FAX.trim()  %> " class="input_edit" type="txt" placeholder="Enter FAX number" id="fax" name="FAX"><br>
+        <input style="margin-left:22px;" value="<%= test.FAX.trim()  %> " class="input_edit" type="text" placeholder="Enter FAX number" id="fax" name="FAX"><br>
         <label for="email">Enter email:</label>
         <input style="margin-left: 77px;" class="input_edit" value="<%= test.Email.trim()  %> " type="text" placeholder="Enter email" id="email" name="Email"><br>
         <label for="warr">Enter warranty:</label>
