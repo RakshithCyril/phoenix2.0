@@ -76,7 +76,9 @@ a:hover{
     }
     
     .button{
-        border-radius: 10px;
+      border: none;
+      outline: none;
+        border-radius: 5px;
         margin-left: 110px;
         margin-top: 30px;
     }
@@ -84,7 +86,11 @@ a:hover{
         position: absolute;
         margin: -96px 0px 0px 200px;
     }
-    
+    .but-reg{
+      padding: 5px;
+      border-radius: 5px;
+      text-decoration: none;
+    }
 </style>
 <body>
   <%- include('nav') %>
@@ -95,6 +101,9 @@ a:hover{
         <label for="password">Password :</label>
         <input style="margin-left: 120px;" placeholder="Enter password" class="input_edit" type="password" id="password" name="password"><br>
         <button class="btn-primary button">Login</button>
-    </form>
+        <a class="btn-primary but-reg" href="/register">Register</a>
+      </form>
+      
+    
 </body>
 </html>
